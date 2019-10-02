@@ -1,0 +1,9 @@
+{
+  "type": "UnknownError",
+  "detail": {
+    "amount": {
+      "type": "Amount Type is False. (not fallback)"
+    }
+  },
+  "fallback_message": "Amount Type is False."
+}

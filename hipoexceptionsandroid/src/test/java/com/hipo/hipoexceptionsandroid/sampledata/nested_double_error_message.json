@@ -1,0 +1,12 @@
+{
+  "type": "UnknownError",
+  "detail": {
+    "amount": {
+      "type": "Amount Type is False. (not fallback)"
+    },
+    "email": {
+      "type": "Not compatible type of email. (not fallback)"
+    }
+  },
+  "fallback_message": "Amount Type is False & Not compatible type of email"
+}

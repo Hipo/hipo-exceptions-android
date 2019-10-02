@@ -1,0 +1,2 @@
+include ':app', ':hipoexceptionsandroid'
+rootProject.name='Hipo Exceptions Android'

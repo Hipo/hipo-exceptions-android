@@ -1,0 +1,12 @@
+{
+  "type": "UnknownError",
+  "detail": {
+    "amount": [
+      "A valid integer is required. (not fallback)"
+    ],
+    "description": [
+      "This field may not be blank. (not fallback)"
+    ]
+  },
+  "fallback_message": "A valid integer is required & This field may not be blank."
+}

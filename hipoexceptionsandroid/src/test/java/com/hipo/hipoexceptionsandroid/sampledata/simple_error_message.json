@@ -1,0 +1,9 @@
+{
+  "type": "ValidationError",
+  "detail": {
+    "email": [
+      "Email is already registered. (not fallback)"
+    ]
+  },
+  "fallback_message": "Email is already registered."
+}

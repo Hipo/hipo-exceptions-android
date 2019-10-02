@@ -1,0 +1,9 @@
+{
+  "type": "ProfileCredentialError",
+  "detail": {
+    "non_field_errors": [
+      "Profile credentials are not correct. (not fallback)"
+    ]
+  },
+  "fallback_message": "Profile credentials are not correct."
+}
