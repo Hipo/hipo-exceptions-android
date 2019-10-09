@@ -1,40 +1,59 @@
 package com.hipo.hipoexceptionsandroid
 
-import android.util.Log
 import com.crashlytics.android.Crashlytics
 import com.google.gson.Gson
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
 import retrofit2.Response
+import java.lang.StringBuilder
 
 // Create class with dagger and use it everywhere and take gson from the dagger also.
 class RetrofitExceptionHandler(
     private val gson: Gson,
+    private val crashlytics: Crashlytics? = null,
     private val defaultErrorMessage: String = "An Error Occurred.",
-    private val logErrorCodes: IntArray = intArrayOf()
+    private val errorCodesToLog: IntArray = intArrayOf()
 ) {
 
-//    fun checkCodeAndLogIfNeeded(response: Response) {
-//        var logString = ""
-//        val responseBody = response.body!!
-//        val contentLength = responseBody.contentLength()
-//        val bodySize = if (contentLength != -1L) "$contentLength-byte" else "unknown-length"
-//        logString += "<-- ${response.code()}${if (response.message().isEmpty()) "" else ' ' + response.message()} ${response.request().url()} (${tookMs}ms${if (!logHeaders) ", $bodySize body" else ""})")
-//        if (logErrorCodes.contains(response.code())) {
-//            response.headers()
-//        }
-//    }
-//
-//    fun parseErrorBody(errorResponse: Response) {
-//        errorResponseBody.code()
-//        errorResponseBody.
-//        errorResponseBody.string()
-//    }
+    /*
+        --->
+        501 GET http://localhost:56979/
+        BODY : null
+        HEADERS {
+            Accept-Encoding gzip
+            Connection Keep-Alive
+            Host localhost:56979
+            User-Agent okhttp/4.2.1
+        }
+        <--
+     */
+    private fun<T> getLogMessage(response: Response<T>): String {
+        val logStringBuilder = StringBuilder()
 
-    fun<T> convertDetailedError(response: Response<T>): DetailedErrorMessage {
-        if (logErrorCodes.contains(response.code())) {
+        val networkResponseRequest = response.raw().networkResponse()?.request()
+
+        val responseCode = response.raw().code()
+        val requestMethod = networkResponseRequest?.method()
+        val requestUrl = networkResponseRequest?.url()
+        val responseBody = networkResponseRequest?.body()
+
+        logStringBuilder.appendln("--->")
+        logStringBuilder.appendln("$responseCode $requestMethod $requestUrl ")
+        logStringBuilder.appendln("BODY : $responseBody ")
+        logStringBuilder.appendln("HEADERS { ")
+        val headers = networkResponseRequest?.headers()
+        headers?.names()?.forEach { headerName ->
+            logStringBuilder.appendln("\t$headerName: ${headers[headerName]}")
+        }
+        logStringBuilder.appendln("}\n<--")
+
+        return logStringBuilder.toString()
+    }
+
+
+    fun<T> parse(response: Response<T>): DetailedErrorMessage {
+        if (errorCodesToLog.contains(response.code())) {
             try {
-                Crashlytics.logException(Exception(response.message()))
+                crashlytics?.core?.logException(Exception(getLogMessage(response)))
             } catch (exception: Exception) {
                 println("RetrofitExceptionHandler Crashlytics has been not started yet.")
             }
@@ -93,20 +112,4 @@ class RetrofitExceptionHandler(
         }
         return result
     }
-
-//    private fun getLogMessage(response: Response): String {
-//        var logMessage = StringBuilder()
-//        val responseBody = response.body()
-//        val contentLength = responseBody?.contentLength()
-//        val bodySize = if (contentLength != -1L) "$contentLength-byte" else "unknown-length"
-//        var requestStartMessage =
-//        logMessage.append(
-//            "<-- ${response.code()}${if (response.message().isEmpty()) "" else ' ' + response.message()} ${response.request().url()} ")
-//
-//    }
-//
-//    private fun logHeader(headers: Headers, i: Int) {
-//        val value = if (headers.name(i) in headersToRedact) "██" else headers.value(i)
-//        logger.log(headers.name(i) + ": " + value)
-//    }
 }
