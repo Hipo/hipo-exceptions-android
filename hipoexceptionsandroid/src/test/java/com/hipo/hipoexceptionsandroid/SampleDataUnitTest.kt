@@ -9,7 +9,9 @@ import retrofit2.Call
 import java.io.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -18,6 +20,9 @@ class SampleDataUnitTest {
     interface TestService {
         @GET("/")
         fun getString(): Call<String>
+
+        @POST("/")
+        fun postString(@Body requestString: String): Call<String>
     }
 
     private var server = MockWebServer()
@@ -26,9 +31,8 @@ class SampleDataUnitTest {
     private val defaultErrorMessage = "New Generic - An Error Occured"
 
     private val retrofitExceptionHandler =
-        RetrofitExceptionHandler(
+        RetrofitErrorHandler(
             Gson(),
-            null,
             defaultErrorMessage,
             intArrayOf(402)
         )
@@ -47,6 +51,24 @@ class SampleDataUnitTest {
     }
 
     @Test
+    fun parsePostErrorMessage() {
+        val errorBodyAsString = getJsonFileAsString("simple_error_message.json")
+
+        server.enqueue(
+            MockResponse()
+                .setResponseCode(402)
+                .setBody(errorBodyAsString)
+        )
+
+        val response = testService.postString("Test").execute()
+
+        retrofitExceptionHandler.parse(response).run {
+            assert(message == "Email is already registered. (not fallback)")
+            assert(keyErrorMessageMap.size == 1)
+        }
+    }
+
+    @Test
     fun parseSimpleErrorMessage() {
         val errorBodyAsString = getJsonFileAsString("simple_error_message.json")
 
@@ -59,8 +81,8 @@ class SampleDataUnitTest {
         val response = testService.getString().execute()
 
         retrofitExceptionHandler.parse(response).run {
-            assert(summaryMessage == "Email is already registered. (not fallback)")
-            assert(detailedKeyErrorMessageMap.size == 1)
+            assert(message == "Email is already registered. (not fallback)")
+            assert(keyErrorMessageMap.size == 1)
         }
     }
 
@@ -77,8 +99,8 @@ class SampleDataUnitTest {
         val response = testService.getString().execute()
 
         retrofitExceptionHandler.parse(response).run {
-            assert(summaryMessage == "A valid integer is required. (not fallback)")
-            assert(detailedKeyErrorMessageMap.size == 2)
+            assert(message == "A valid integer is required. (not fallback)")
+            assert(keyErrorMessageMap.size == 2)
         }
     }
 
@@ -96,8 +118,8 @@ class SampleDataUnitTest {
         val response = testService.getString().execute()
 
         retrofitExceptionHandler.parse(response).run {
-            assert(summaryMessage == "Email is already registered.")
-            assert(detailedKeyErrorMessageMap.isEmpty())
+            assert(message == "Email is already registered.")
+            assert(keyErrorMessageMap.isEmpty())
         }
     }
 
@@ -115,9 +137,9 @@ class SampleDataUnitTest {
         val response = testService.getString().execute()
 
         retrofitExceptionHandler.parse(response).run {
-            assert(summaryMessage == "Profile credentials are not correct. (not fallback)")
-            assert(detailedKeyErrorMessageMap.size == 1)
-            assert(detailedKeyErrorMessageMap["/non_field_errors"]?.size == 2)
+            assert(message == "Profile credentials are not correct. (not fallback)")
+            assert(keyErrorMessageMap.size == 1)
+            assert(keyErrorMessageMap["/non_field_errors"]?.size == 2)
         }
     }
 
@@ -134,8 +156,8 @@ class SampleDataUnitTest {
         val response = testService.getString().execute()
 
         retrofitExceptionHandler.parse(response).run {
-            assert(summaryMessage == "Amount Type is False. (not fallback)")
-            assert(detailedKeyErrorMessageMap.size == 1)
+            assert(message == "Amount Type is False. (not fallback)")
+            assert(keyErrorMessageMap.size == 1)
         }
     }
 
@@ -152,8 +174,8 @@ class SampleDataUnitTest {
         val response = testService.getString().execute()
 
         retrofitExceptionHandler.parse(response).run {
-            assert(summaryMessage == "Amount Type is False. (not fallback)")
-            assert(detailedKeyErrorMessageMap.size == 2)
+            assert(message == "Amount Type is False. (not fallback)")
+            assert(keyErrorMessageMap.size == 2)
         }
     }
 
@@ -170,8 +192,8 @@ class SampleDataUnitTest {
         val response = testService.getString().execute()
 
         retrofitExceptionHandler.parse(response).run {
-            assert(summaryMessage == "Error. (not fallback)")
-            assert(detailedKeyErrorMessageMap.size == 3)
+            assert(message == "Error. (not fallback)")
+            assert(keyErrorMessageMap.size == 3)
         }
     }
 
@@ -188,8 +210,8 @@ class SampleDataUnitTest {
         val response = testService.getString().execute()
 
         retrofitExceptionHandler.parse(response).run {
-            assert(summaryMessage == defaultErrorMessage)
-            assert(detailedKeyErrorMessageMap.isEmpty())
+            assert(message == defaultErrorMessage)
+            assert(keyErrorMessageMap.isEmpty())
         }
     }
 
@@ -206,8 +228,8 @@ class SampleDataUnitTest {
         val response = testService.getString().execute()
 
         retrofitExceptionHandler.parse(response).run {
-            assert(summaryMessage == defaultErrorMessage)
-            assert(detailedKeyErrorMessageMap.isEmpty())
+            assert(message == defaultErrorMessage)
+            assert(keyErrorMessageMap.isEmpty())
         }
     }
 

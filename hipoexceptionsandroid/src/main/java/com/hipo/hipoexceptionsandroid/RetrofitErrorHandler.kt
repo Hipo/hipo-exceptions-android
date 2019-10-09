@@ -1,23 +1,20 @@
 package com.hipo.hipoexceptionsandroid
 
-import com.crashlytics.android.Crashlytics
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import retrofit2.Response
 import java.lang.StringBuilder
 
 // Create class with dagger and use it everywhere and take gson from the dagger also.
-class RetrofitExceptionHandler(
+class RetrofitErrorHandler(
     private val gson: Gson,
-    private val crashlytics: Crashlytics? = null,
     private val defaultErrorMessage: String = "An Error Occurred.",
-    private val errorCodesToLog: IntArray = intArrayOf()
+    private val responseCodesToLog: IntArray = intArrayOf()
 ) {
 
     /*
         --->
         501 GET http://localhost:56979/
-        BODY : null
         HEADERS {
             Accept-Encoding gzip
             Connection Keep-Alive
@@ -26,7 +23,7 @@ class RetrofitExceptionHandler(
         }
         <--
      */
-    private fun<T> getLogMessage(response: Response<T>): String {
+    private fun <T> getLogMessage(response: Response<T>): String {
         val logStringBuilder = StringBuilder()
 
         val networkResponseRequest = response.raw().networkResponse()?.request()
@@ -34,11 +31,10 @@ class RetrofitExceptionHandler(
         val responseCode = response.raw().code()
         val requestMethod = networkResponseRequest?.method()
         val requestUrl = networkResponseRequest?.url()
-        val responseBody = networkResponseRequest?.body()
 
+        logStringBuilder.appendln("HipoExceptionsAndroid")
         logStringBuilder.appendln("--->")
         logStringBuilder.appendln("$responseCode $requestMethod $requestUrl ")
-        logStringBuilder.appendln("BODY : $responseBody ")
         logStringBuilder.appendln("HEADERS { ")
         val headers = networkResponseRequest?.headers()
         headers?.names()?.forEach { headerName ->
@@ -49,21 +45,18 @@ class RetrofitExceptionHandler(
         return logStringBuilder.toString()
     }
 
-
-    fun<T> parse(response: Response<T>): DetailedErrorMessage {
-        if (errorCodesToLog.contains(response.code())) {
-            try {
-                crashlytics?.core?.logException(Exception(getLogMessage(response)))
-            } catch (exception: Exception) {
-                println("RetrofitExceptionHandler Crashlytics has been not started yet.")
-            }
+    fun <T> parse(response: Response<T>): ParsedError {
+        if (responseCodesToLog.contains(response.code())) {
+            sendExceptionLog(UnexpectedResponseCodeException(getLogMessage(response)))
         }
 
-        val errorBody = response.errorBody()
-        return convertJsonToDetailedErrorMessage(errorBody?.string() ?: "")
+        return convertJsonToParsedError(response)
     }
 
-    private fun convertJsonToDetailedErrorMessage(errorOutputAsJson: String): DetailedErrorMessage {
+    private fun <T> convertJsonToParsedError(
+        response: Response<T>
+    ): ParsedError {
+        val errorOutputAsJson = response.errorBody()?.string() ?: ""
         val baseErrorModel = gson.fromJson(errorOutputAsJson, BaseErrorModel::class.java)
         val detailedKeyErrorMap = getKeyErrorMap(baseErrorModel.detail)
         val summaryMessageFromMap = detailedKeyErrorMap.values.firstOrNull()?.firstOrNull()
@@ -71,15 +64,21 @@ class RetrofitExceptionHandler(
         val summaryMessage =
             when {
                 summaryMessageFromMap?.isNotBlank() == true -> summaryMessageFromMap
-                fallbackMessage?.isNotEmpty() == true -> fallbackMessage
-                else -> defaultErrorMessage
+                fallbackMessage?.isNotEmpty() == true -> {
+                    sendExceptionLog(FallbackMessageException(getLogMessage(response)))
+                    fallbackMessage
+                }
+                else -> {
+                    sendExceptionLog(NoFallbackMessageException(getLogMessage(response)))
+                    defaultErrorMessage
+                }
             }
-        return DetailedErrorMessage(detailedKeyErrorMap, summaryMessage)
+        return ParsedError(detailedKeyErrorMap, summaryMessage, response.code())
     }
 
     private fun getKeyErrorMap(
         jsonElement: JsonElement?,
-        previousKey: String = ""
+        previousPath: String = ""
     ): Map<String, List<String>> {
         val result = mutableMapOf<String, List<String>>()
 
@@ -89,27 +88,28 @@ class RetrofitExceptionHandler(
 
         val entrySet = jsonElement.asJsonObject.entrySet()
 
-        entrySet.forEach {
-            val currentKey = previousKey + "/" + it.key
+        entrySet.forEach { (currentKey, jsonElement) ->
+            val currentPath = "$previousPath/$currentKey"
 
             when {
-                it.value.isJsonPrimitive -> result[currentKey] = listOf(it.value.asString)
+                jsonElement.isJsonPrimitive -> result[currentPath] = listOf(jsonElement.asString)
 
-                it.value.isJsonArray -> {
+                jsonElement.isJsonArray -> {
                     val errorMessageList = mutableListOf<String>()
-                    it.value.asJsonArray.forEach { jsonElement ->
-                        if (jsonElement.isJsonPrimitive) {
-                            errorMessageList.add(jsonElement.asString)
+                    jsonElement.asJsonArray.forEach { jsonElementItem ->
+                        if (jsonElementItem.isJsonPrimitive) {
+                            errorMessageList.add(jsonElementItem.asString)
                         }
                     }
-                    result[currentKey] = errorMessageList
+                    result[currentPath] = errorMessageList
                 }
 
-                else -> result.putAll(
-                    getKeyErrorMap(it.value.asJsonObject, currentKey)
+                jsonElement.isJsonObject -> result.putAll(
+                    getKeyErrorMap(jsonElement.asJsonObject, currentPath)
                 )
             }
         }
+
         return result
     }
 }
