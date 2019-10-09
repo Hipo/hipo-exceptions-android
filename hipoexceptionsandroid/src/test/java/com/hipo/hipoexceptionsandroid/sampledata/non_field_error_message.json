@@ -2,7 +2,8 @@
   "type": "ProfileCredentialError",
   "detail": {
     "non_field_errors": [
-      "Profile credentials are not correct. (not fallback)"
+      "Profile credentials are not correct. (not fallback)",
+      "Email is not registered before."
     ]
   },
   "fallback_message": "Profile credentials are not correct."
