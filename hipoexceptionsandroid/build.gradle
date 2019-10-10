@@ -1,16 +1,17 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply from: 'versions.gradle'
 android {
-    compileSdkVersion 29
+    compileSdkVersion targets.compileSdkVersion
     buildToolsVersion "29.0.1"
 
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion targets.minSdkVersion
+        targetSdkVersion targets.targetSdkVersion
+        versionCode library.versionCode
+        versionName library.versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
@@ -23,10 +24,29 @@ android {
         }
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    testImplementation 'junit:junit:4.12'
+    implementation "com.google.code.gson:gson:${libVersions.gson}"
+
+    implementation "com.google.firebase:firebase-core:${libVersions.firebase}"
+    implementation "com.crashlytics.sdk.android:crashlytics:${libVersions.crashlytics}"
+    implementation "com.squareup.retrofit2:retrofit:${libVersions.retrofit}"
+
+    testImplementation "com.squareup.retrofit2:converter-gson:${testLibVersions.gsonConverter}"
+    testImplementation "com.squareup.okhttp3:mockwebserver:${testLibVersions.mockWebServer}"
+    testImplementation "junit:junit:${testLibVersions.junit}"
 }

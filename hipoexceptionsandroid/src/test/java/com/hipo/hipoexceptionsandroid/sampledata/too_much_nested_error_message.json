@@ -1,0 +1,31 @@
+{
+  "type": "UnknownError",
+  "detail": {
+    "amount": {
+      "type": {
+        "type2": {
+          "type3": {
+            "type4": {
+              "amount": [
+                "Error. (not fallback)"
+              ],
+              "type5": {
+                "type6": {
+                  "isPaid": [
+                    "isPaid cannot be send as null. (not fallback)"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "email": {
+      "type": [
+        "Not compatible type of email. (not fallback)"
+      ]
+    }
+  },
+  "fallback_message": "Amount Type is False & Not compatible type of email"
+}
