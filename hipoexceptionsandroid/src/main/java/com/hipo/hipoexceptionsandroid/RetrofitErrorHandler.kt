@@ -57,7 +57,7 @@ class RetrofitErrorHandler(
         response: Response<T>
     ): ParsedError {
         val errorOutputAsJson = response.errorBody()?.string() ?: ""
-        val baseErrorModel = gson.fromJson(errorOutputAsJson, BaseErrorModel::class.java)
+        val baseErrorModel = gson.fromJson(errorOutputAsJson, BaseError::class.java)
         val detailedKeyErrorMap = getKeyErrorMap(baseErrorModel.detail)
         val summaryMessageFromMap = detailedKeyErrorMap.values.firstOrNull()?.firstOrNull()
         val fallbackMessage = baseErrorModel.fallbackMessage
