@@ -38,6 +38,30 @@ android {
     }
 }
 
+ext {
+    bintrayRepo = 'HipoExceptions'
+    bintrayName = 'com.hipo.hipoexceptionsandroid'
+
+    publishedGroupId = 'com.hipo.hipoexceptionsandroid'
+    libraryName = 'hipoexceptions'
+    artifact = 'hipoexceptions'
+
+    libraryDescription = 'Parse api error json response to create error object'
+
+    siteUrl = 'https://github.com/Hipo/hipo-exceptions-android'
+    gitUrl = 'https://github.com/Hipo/hipo-exceptions-android.git'
+
+    libraryVersion = '1.0.0'
+
+    developerId = 'msinansari'
+    developerName = 'Mithat Sinan Sari'
+    developerEmail = 'm.sinan.sari@gmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "com.google.code.gson:gson:${libVersions.gson}"
