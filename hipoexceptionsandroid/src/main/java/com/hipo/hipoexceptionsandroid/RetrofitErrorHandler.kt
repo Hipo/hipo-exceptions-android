@@ -2,8 +2,8 @@ package com.hipo.hipoexceptionsandroid
 
 import com.google.gson.Gson
 import com.google.gson.JsonElement
+import com.google.gson.JsonSyntaxException
 import retrofit2.Response
-import java.lang.StringBuilder
 
 // Create class with dagger and use it everywhere and take gson from the dagger also.
 class RetrofitErrorHandler(
@@ -57,7 +57,12 @@ class RetrofitErrorHandler(
         response: Response<T>
     ): ParsedError {
         val errorOutputAsJson = response.errorBody()?.string() ?: ""
-        val baseErrorModel = gson.fromJson(errorOutputAsJson, BaseError::class.java)
+        val baseErrorModel =
+            try {
+                gson.fromJson(errorOutputAsJson, BaseError::class.java)
+            } catch (exception: JsonSyntaxException) {
+                BaseError()
+            }
         val detailedKeyErrorMap = getKeyErrorMap(baseErrorModel.detail)
         val summaryMessageFromMap = detailedKeyErrorMap.values.firstOrNull()?.firstOrNull()
         val fallbackMessage = baseErrorModel.fallbackMessage

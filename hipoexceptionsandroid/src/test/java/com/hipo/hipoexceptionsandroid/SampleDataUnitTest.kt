@@ -28,7 +28,7 @@ class SampleDataUnitTest {
     private var server = MockWebServer()
     private lateinit var testService: TestService
 
-    private val defaultErrorMessage = "New Generic - An Error Occured"
+    private val defaultErrorMessage = "New Generic - An Error Occurred"
 
     private val retrofitExceptionHandler =
         RetrofitErrorHandler(
@@ -222,6 +222,42 @@ class SampleDataUnitTest {
         server.enqueue(
             MockResponse()
                 .setResponseCode(403)
+                .setBody(errorBodyAsString)
+        )
+
+        val response = testService.getString().execute()
+
+        retrofitExceptionHandler.parse(response).run {
+            assert(message == defaultErrorMessage)
+            assert(keyErrorMessageMap.isEmpty())
+        }
+    }
+
+    @Test
+    fun parseInvalidErrorMessage() {
+        val errorBodyAsString = getJsonFileAsString("invalid.json")
+
+        server.enqueue(
+            MockResponse()
+                .setResponseCode(500)
+                .setBody(errorBodyAsString)
+        )
+
+        val response = testService.getString().execute()
+
+        retrofitExceptionHandler.parse(response).run {
+            assert(message == defaultErrorMessage)
+            assert(keyErrorMessageMap.isEmpty())
+        }
+    }
+
+    @Test
+    fun parseHtmlErrorMessage() {
+        val errorBodyAsString = getJsonFileAsString("html.json")
+
+        server.enqueue(
+            MockResponse()
+                .setResponseCode(500)
                 .setBody(errorBodyAsString)
         )
 
