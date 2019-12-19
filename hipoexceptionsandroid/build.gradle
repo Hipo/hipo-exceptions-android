@@ -46,6 +46,7 @@ ext {
     publishedGroupId = 'com.hipo.hipoexceptionsandroid'
     libraryName = 'hipoexceptions'
     artifact = 'hipoexceptions'
+    userOrganization = 'hipo'
 
     libraryDescription = 'Parse api error json response to create error object'
 
