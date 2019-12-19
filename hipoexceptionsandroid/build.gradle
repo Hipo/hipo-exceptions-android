@@ -2,7 +2,6 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply from: 'versions.gradle'
-apply from: 'publish.gradle'
 
 android {
     compileSdkVersion targets.compileSdkVersion
@@ -57,7 +56,7 @@ ext {
 
     developerId = 'tolgacanunal'
     developerName = 'Tolga Can Unal'
-    developerEmail = 'tolga@hipo.biz'
+    developerEmail = 'tolgacnunal@gmail.com'
 
     licenseName = 'The Apache Software License, Version 2.0'
     licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
@@ -76,3 +75,5 @@ dependencies {
     testImplementation "com.squareup.okhttp3:mockwebserver:${testLibVersions.mockWebServer}"
     testImplementation "junit:junit:${testLibVersions.junit}"
 }
+
+apply from: 'publish.gradle'
