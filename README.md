@@ -141,7 +141,6 @@ val errorHandler = RetrofitErrorHandler(
             responseCodesToLog = intArrayOf(HTTP_CODE_402)
 )
 
-val 
 val parsedError = errorHandler.parse(this)
 
 //data class ParsedError(
