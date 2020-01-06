@@ -141,7 +141,8 @@ val errorHandler = RetrofitErrorHandler(
             responseCodesToLog = intArrayOf(HTTP_CODE_402)
 )
 
-val parsedError = errorHandler.parse(this)
+// import retrofit2.Response
+val parsedError = errorHandler.parse(response)
 
 //data class ParsedError(
 //    val keyErrorMessageMap: Map<String, List<String>>,
