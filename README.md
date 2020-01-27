@@ -1,5 +1,7 @@
 # Hipo Exceptions Android 
 
+![Bintray](https://img.shields.io/bintray/v/hipo/HipoExceptions/com.hipo.hipoexceptionsandroid)
+
 Hipo exceptions library is a Kotlin library to parse API error json.
 
 This library can parse jsons below;
@@ -123,8 +125,10 @@ This library can parse jsons below;
 ## Installation
 Add below implementation line into app module build.gradle
 
+![Bintray](https://img.shields.io/bintray/v/hipo/HipoExceptions/com.hipo.hipoexceptionsandroid)
+
 ```
-implementation 'com.github.Hipo:hipo-exceptions-android:1.0.0'
+implementation 'com.hipo.maskededittext:maskededittext:[LatestVersion]'
 ```
 
 ## Usage
