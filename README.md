@@ -128,7 +128,7 @@ Add below implementation line into app module build.gradle
 ![Bintray](https://img.shields.io/bintray/v/hipo/HipoExceptions/com.hipo.hipoexceptionsandroid)
 
 ```
-implementation 'com.hipo.maskededittext:maskededittext:[LatestVersion]'
+implementation 'com.github.Hipo:hipo-exceptions-android:[LatestVersion]'
 ```
 
 ## Usage
