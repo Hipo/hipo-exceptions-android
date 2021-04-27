@@ -53,7 +53,7 @@ ext {
     siteUrl = 'https://github.com/Hipo/hipo-exceptions-android'
     gitUrl = 'https://github.com/Hipo/hipo-exceptions-android.git'
 
-    libraryVersion = '1.0.0'
+    libraryVersion = '1.0.1'
 
     developerId = 'tolgacanunal'
     developerName = 'Tolga Can Unal'
