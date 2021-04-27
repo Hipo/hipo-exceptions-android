@@ -66,6 +66,7 @@ class RetrofitErrorHandler(
         val detailedKeyErrorMap = getKeyErrorMap(baseErrorModel.detail)
         val summaryMessageFromMap = detailedKeyErrorMap.values.firstOrNull()?.firstOrNull()
         val fallbackMessage = baseErrorModel.fallbackMessage
+        val type = baseErrorModel.type.orEmpty()
         val summaryMessage =
             when {
                 summaryMessageFromMap?.isNotBlank() == true -> summaryMessageFromMap
@@ -78,7 +79,7 @@ class RetrofitErrorHandler(
                     defaultErrorMessage
                 }
             }
-        return ParsedError(detailedKeyErrorMap, summaryMessage, response.code())
+        return ParsedError(detailedKeyErrorMap, summaryMessage, response.code(), type)
     }
 
     private fun getKeyErrorMap(

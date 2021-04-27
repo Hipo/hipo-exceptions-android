@@ -65,6 +65,7 @@ class SampleDataUnitTest {
         retrofitExceptionHandler.parse(response).run {
             assert(message == "Email is already registered. (not fallback)")
             assert(keyErrorMessageMap.size == 1)
+            assert(type == "ValidationError")
         }
     }
 
